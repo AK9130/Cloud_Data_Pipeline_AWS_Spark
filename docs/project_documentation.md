@@ -7,8 +7,8 @@ The goal is to clean, transform, and analyze accident data locally before deploy
 ## Dataset
 Dataset Name: US Accidents (2016–2023)
 
-Size: ~2.9 GB  
-Rows: ~7.7 million
+Size: 2.9 GB  
+Rows: 7.7 million
 
 Important Columns:
 - ID
@@ -38,14 +38,16 @@ Parquet Output
 4. Top cities with most accidents
 5. Accidents by hour (time analysis)
 
+
 ## Tools Used
-- Apache Spark
-- Python (PySpark)
+- AWS S3
+- AWS EMR (Apache Spark)
+- AWS Glue (Crawler & Data Catalog)
+- AWS Athena
+- PySpark
+- Python
 - Linux (Ubuntu)
 
 ## Future Cloud Integration
 The processed data will be uploaded to AWS services:
-- Amazon S3
-- AWS Glue
-- Amazon Athena
-- Amazon Redshift
+- Amazon Redshift etc
