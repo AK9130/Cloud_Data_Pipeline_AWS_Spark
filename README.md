@@ -8,27 +8,66 @@ Raw accident data is stored in Amazon S3, processed using PySpark on EMR, catalo
 S3 (Raw Data) → EMR (Spark Processing) → S3 (Parquet Output) → Glue (Crawler & Data Catalog) → Athena (SQL Query)
 
 ## Dataset
-- **Name:** US Accidents Dataset
-- **Size:** ~2.9 GB
-- **Records:** ~7.7 million
+- Name: US Accidents Dataset
+- Size: ~2.9 GB
+- Records: 7.7 million
 
 ## Project Structure
-
 ```
-data_sets/        → raw dataset (local backup)
-scripts/          → PySpark scripts
-output/           → processed data (local)
-queries/          → analysis queries
-docs/
-└── screenshots/
-    ├── s3/
-    ├── emr/
-    │   ├── setup/
-    │   └── execution/
-    ├── glue/
-    └── athena/
+.
+├── data_sets
+│   └── raw_data
+│       └── US_Accidents_March23.csv
+├── docs
+│   ├── project_documentation.md
+│   └── screenshots
+│       ├── athena
+│       │   ├── query_result.png
+│       │   ├── severity.png
+│       │   └── top_states.png
+│       ├── emr
+│       │   ├── execution
+│       │   │   ├── emr_city_analysis.png
+│       │   │   ├── emr_df_show.png
+│       │   │   ├── emr_hour_analysis.png
+│       │   │   ├── emr_s3_partition_output.png
+│       │   │   ├── emr_severity_analysis.png
+│       │   │   ├── emr_state_analysis.png
+│       │   │   └── emr_weather_analysis.png
+│       │   └── setup
+│       │       ├── emr_cluster_running.png
+│       │       ├── emr_cluster_starting.png
+│       │       ├── emr_create_cluster.png
+│       │       ├── emr_inbound_rules.png
+│       │       ├── emr_instance_config.png
+│       │       ├── emr_networking.png
+│       │       ├── emr_network_security_iam.png
+│       │       ├── emr_security_iam.png
+│       │       └── emr_ssh_connected.png
+│       ├── glue
+│       │   ├── crawler_running.png
+│       │   ├── crawler_success.png
+│       │   ├── table_created.png
+│       │   └── table_schema.png
+│       └── s3
+│           ├── s3_bucket_overview.png
+│           ├── s3_data_sets_folder.png
+│           ├── s3_output.png
+│           └── s3_raw_data_files.png
+├── output
+│   └── accidents_clean
+│       ├── part-00000-26fe1585-5a20-41ab-9a40-045201e0b552-c000.snappy.parquet
+│       ├── part-00001-26fe1585-5a20-41ab-9a40-045201e0b552-c000.snappy.parquet
+│       ├── part-00021-26fe1585-5a20-41ab-9a40-045201e0b552-c000.snappy.parquet
+│       ├── part-00022-26fe1585-5a20-41ab-9a40-045201e0b552-c000.snappy.parquet
+│       └── _SUCCESS
+├── queries
+│   └── accident_analysis_queries.sql
+├── README.md
+└── scripts
+    ├── emr_etl_job.py
+    └── glue_etl_job.py
 ```
-
 ## Technologies Used
 
 - AWS S3
