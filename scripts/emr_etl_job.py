@@ -52,7 +52,18 @@ df_clean.groupBy("City").count() \
 df_clean.groupBy(hour("Start_Time").alias("Hour")).count() \
 .orderBy("Hour").show(24)
 
+# 6. Save Cleaned Data Partitioned by State
 df_clean.write.mode("overwrite").partitionBy("State").parquet(
+    "s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/")
+
+# 7. Perform State-Wise Accident Count Analysis
+df_state = df_clean.groupBy("State").count() \
+.orderBy("count", ascending=False)
+
+df_state.show()
+
+# 8. Save State-Wise Accident Counts as Partitioned Parquet
+df_state.write.mode("overwrite").partitionBy("State").parquet(
     "s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/"
 )
 
