@@ -1,37 +1,30 @@
-ROJECTS/6_Cloud_Data_Pipeline_AWS_Spark$ cat README.md
-# Cloud Data Pipeline Using AWS and Spark
+# Cloud Data Pipeline Using AWS and Apache Spark
 
-## 1. Project Introduction
-This project demonstrates an end-to-end cloud data pipeline using AWS and Apache Spark to process and analyze the US Accidents dataset.
-The pipeline stores raw accident data in Amazon S3, processes the data using PySpark on Amazon EMR, stores the processed data in Parquet format, catalogs the data using AWS Glue, and queries the processed data using Amazon Athena.
+## 1. Project Overview
+This project demonstrates an end-to-end cloud data pipeline built with AWS and Apache Spark to process and analyze the US Accidents dataset.
+The pipeline stores raw data in Amazon S3, processes it with PySpark on Amazon EMR, writes Parquet outputs to S3, uses AWS Glue for ETL and data cataloging, and queries cataloged data with Amazon Athena.
 
 ## 2. Problem Statement
-The US Accidents dataset contains millions of accident records with information about severity, location, time, weather, and other attributes.
+The US Accidents dataset contains millions of records with details such as accident severity, location, start time, temperature, and weather conditions.
 
-The objective of this project is to build a cloud-based data pipeline that can:
+The objective is to build a cloud-based pipeline that can:
 
-- Store raw data in Amazon S3
-- Process large-scale data using PySpark on Amazon EMR
-- Clean and transform the required data
-- Store processed data in partitioned Parquet format
-- Catalog the processed data using AWS Glue
-- Analyze the data using Amazon Athena
+- Store raw data in Amazon S3.
+- Process large-scale data using PySpark on Amazon EMR.
+- Select required columns and remove records containing null values.
+- Analyze accident records by state, severity, weather, city, and hour.
+- Store processed data in Parquet format, partitioned by state where applicable.
+- Use AWS Glue to transform and catalog data.
+- Run SQL analysis using Amazon Athena.
 
 ## 3. Dataset
-The dataset used in this project is the US Accidents dataset covering 2016–2023.
 
-**Dataset file:**
+**Dataset:** US Accidents (March 2023 version, covering 2016–2023)  
+**Local path:** `data_sets/accidents_data/US_Accidents_March23.csv`  
+**Approximate size:** 2.9 GB  
+**Approximate records:** 7.7 million
 
-```text
-data_sets/accidents_data/US_Accidents_March23.csv
-```
-
-According to the project documentation:
-
-- Size: approximately 2.9 GB
-- Records: approximately 7.7 million
-
-Important columns include:
+Columns used in the project include:
 
 - `ID`
 - `Severity`
@@ -42,41 +35,42 @@ Important columns include:
 - `Weather_Condition`
 
 ## 4. Technologies Used
+
+- Python
+- Apache Spark / PySpark
 - Amazon S3
 - Amazon EMR
-- Apache Spark
-- PySpark
-- AWS Glue
-- AWS Glue Data Catalog
+- AWS Glue ETL
+- AWS Glue Crawler and Data Catalog
 - Amazon Athena
-- Python
-- Linux (Ubuntu)
 - Parquet
+- Linux (Ubuntu)
 
-## 5. Project Architecture / Flow
+## 5. Pipeline Architecture
+
 ```text
 US Accidents CSV
        |
        v
-   Amazon S3
-   Raw Data
+Amazon S3 (Raw Data)
        |
        v
-Amazon EMR
-PySpark Processing
+Amazon EMR + PySpark
        |
        v
-Data Cleaning
+Data Cleaning and Analysis
        |
        v
-Analysis
+Partitioned Parquet Output (by State)
        |
        v
-Partitioned Parquet
-   by State
+Amazon S3 (Processed Data)
        |
        v
-   Amazon S3
+AWS Glue ETL Job
+       |
+       v
+Processed Parquet Output in S3
        |
        v
 AWS Glue Crawler
@@ -85,271 +79,174 @@ AWS Glue Crawler
 Glue Data Catalog
        |
        v
-Amazon Athena
-       |
-       v
-    SQL Analysis
+Amazon Athena (SQL Analysis)
 ```
 
-## 6. Implementation / Processing
-The project uses two PySpark-based scripts for cloud processing.
+## 6. Implementation
 
-### Step 1: Store Raw Data in S3
-The raw US Accidents CSV dataset is uploaded to an Amazon S3 bucket.
-
-### Step 2: Process Data Using EMR
-The EMR PySpark job reads the CSV data directly from S3:
+### Step 1: Upload the Raw Dataset to S3
+Upload the dataset to the configured S3 bucket:
 
 ```text
 s3://aaqib-data-pipeline-bucket/data_sets/accidents_data/US_Accidents_March23.csv
 ```
 
-The script selects the required columns and removes records containing null values.
+### Step 2: Process Data Using Amazon EMR
 
-Selected columns include:
+Run the PySpark job:
 
-- `ID`
-- `Severity`
-- `Start_Time`
-- `City`
-- `State`
-- `Temperature(F)`
-- `Weather_Condition`
+```text
+scripts/emr_etl_job.py
+```
 
-### Step 3: Perform Analysis
-The EMR Spark job performs:
+The job reads the CSV file from S3, selects the required columns, removes records containing null values, and performs the following analyses:
 
 - State-wise accident analysis
-- Severity analysis
-- Weather condition analysis
+- Severity-wise accident counts
+- Weather-condition analysis
 - City-wise accident analysis
 - Hourly accident analysis
 
-### Step 4: Store Processed Data
-The cleaned data is written to S3 in Parquet format and partitioned by `State`:
+The cleaned data is written in Parquet format, partitioned by `State`, to:
 
 ```text
 s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/
 ```
 
-### Step 5: Process Using AWS Glue
-The Glue PySpark job reads the processed clean Parquet data from S3.
-
-It:
-
-- Renames selected columns
-- Converts `Start_Time` to timestamp format
-- Performs severity-wise aggregation
-- Writes the processed severity-level results back to S3
-
-Output location:
+### Step 3: Run the AWS Glue ETL Job
+The Glue ETL script is:
 
 ```text
-s3://aaqib-data-pipeline-bucket/output/processed_state_accidents_parquet/
+scripts/glue_etl_job.py
 ```
 
-### Step 6: Catalog Data Using AWS Glue
-An AWS Glue Crawler is used to crawl the processed S3 data and create the table schema in the Glue Data Catalog.
+The job reads processed Parquet data from S3, renames selected columns, converts `Start_Time` to timestamp format, performs severity-wise aggregation, and writes its output to S3.
 
-### Step 7: Query Using Amazon Athena
-Amazon Athena is used to run SQL queries against the cataloged data.
+The README's configured output location is:
 
-## 7. My Role
-I worked on the complete cloud data pipeline, including:
+```text
+s3://aaqib-data-pipeline-bucket/output/processed_severity_accidents_parquet/
+```
 
-- Prepared the US Accidents dataset for cloud processing.
-- Uploaded raw data to Amazon S3.
-- Worked with Amazon EMR and PySpark for data processing.
-- Selected required columns from the raw dataset.
-- Removed null records.
-- Performed state, severity, weather, city, and hourly analysis.
-- Stored processed data in partitioned Parquet format on S3.
-- Worked with AWS Glue for data cataloging.
-- Processed the Parquet data using the Glue ETL job.
-- Performed SQL-based analysis using Amazon Athena.
+Make sure this path matches the output path configured in `scripts/glue_etl_job.py`. The repository's local output folder is named `processed_severity_accidents_parquet`, so keep the script, S3 path, and documentation consistent.
 
-## 8. Analysis Performed
+### Step 4: Catalog Data with AWS Glue
+Use an AWS Glue Crawler to crawl the intended processed S3 output location and create or update the table schema in the Glue Data Catalog.
 
-### Top States with Most Accidents
-Counts accidents by state and identifies the states with the highest number of accident records.
+### Step 5: Query Data with Amazon Athena
 
-### Accident Severity Analysis
-Counts accident records for each severity level.
-
-### Weather Condition Analysis
-Analyzes accident records by weather condition.
-
-### City-wise Accident Analysis
-Identifies cities with the highest number of accident records.
-
-### Accidents by Hour
-Analyzes accident activity based on the hour extracted from `Start_Time`.
-
-### Additional Athena Analysis
-The SQL query file also contains:
-
-- Accident count per minute
-- States with highest average severity
-- Top 3 cities per state using a window function
-
-The queries are available in:
+Run SQL queries against the cataloged tables using the query file:
 
 ```text
 queries/accident_analysis_queries.sql
 ```
 
-## 9. Output / Results
-The project contains locally generated Parquet output under:
+The query file includes analyses such as:
+
+- Accident count per minute
+- States with the highest average severity
+- Top 3 cities per state using a window function
+
+The Athena table and S3 location must correspond to the dataset you want to query.
+
+## 7. Analysis Performed
+
+### State-wise Accident Analysis
+Counts accident records by state and helps identify states with the highest number of records.
+
+### Severity Analysis
+Counts accident records for each severity level.
+
+### Weather-condition Analysis
+Analyzes accident records by weather condition.
+
+### City-wise Analysis
+Identifies cities with the highest number of accident records.
+
+### Hourly Analysis
+Analyzes accident activity using the hour extracted from `Start_Time`.
+
+### Additional Athena Queries
+The SQL query file also includes accident counts per minute, average severity by state, and a window-function query for the top three cities per state.
+
+## 8. Project Structure
+
+```text
+.
+├── data_sets/
+│   └── accidents_data/
+│       └── US_Accidents_March23.csv
+├── docs/
+│   ├── project_documentation.md
+│   └── screenshots/
+│       ├── athena/
+│       ├── emr/
+│       │   ├── execution/
+│       │   └── setup/
+│       ├── glue/
+│       └── s3/
+├── output/
+│   ├── accidents_clean_parquet/
+│   ├── emr_state_wise_parquet/
+│   └── processed_severity_accidents_parquet/
+├── queries/
+│   └── accident_analysis_queries.sql
+├── scripts/
+│   ├── emr_etl_job.py
+│   └── glue_etl_job.py
+└── README.md
+```
+
+The `output/` folders contain local Parquet outputs. Generated part-file names can vary between runs, so they are not listed individually here.
+
+## 9. Outputs and Screenshots
+Local Parquet output folders documented in this repository:
 
 ```text
 output/accidents_clean_parquet/
+output/emr_state_wise_parquet/
+output/processed_severity_accidents_parquet/
 ```
 
-The project also stores processed Parquet data in Amazon S3.
-
-The EMR processing output is partitioned by state.
-
-Screenshots documenting the AWS workflow are available under:
+The project also writes processed data to Amazon S3. Screenshots documenting the AWS workflow are stored under:
 
 ```text
 docs/screenshots/
 ```
 
-They include screenshots for:
+They include screenshots related to S3, EMR setup and execution, Glue crawler/cataloging, and Athena query results.
 
-- Amazon S3
-- Amazon EMR
-- AWS Glue
-- Amazon Athena
+## 10. Challenges and Learning
 
-## 10. Challenges & Learning
 ### Challenges
-- Processing a large accident dataset using distributed Spark processing.
-- Reading large CSV data directly from Amazon S3.
-- Cleaning the required data before analysis.
-- Writing partitioned Parquet output to S3.
-- Cataloging processed data using AWS Glue.
-- Querying the cataloged data using Amazon Athena.
 
-### Learning
-Through this project, I gained practical experience in:
+- Processing a large CSV dataset with Spark.
+- Reading raw data directly from Amazon S3.
+- Cleaning records before analysis.
+- Writing Parquet output and partitioning data by state.
+- Cataloging S3 data using AWS Glue.
+- Querying cataloged data using Amazon Athena.
 
-- Building an AWS-based data pipeline
-- Working with Amazon S3
-- Processing data using Amazon EMR and PySpark
-- Writing Parquet output
-- Partitioning data by state
-- Working with AWS Glue Crawlers and Data Catalog
-- Running SQL queries using Amazon Athena
-- Processing large-scale datasets using Spark
+### Key Learnings
 
-## 11. Project Structure
-```text
-.
-├── data_sets
-│   └── accidents_data
-│       └── US_Accidents_March23.csv
-├── docs
-│   ├── project_documentation.md
-│   └── screenshots
-│       ├── athena
-│       │   ├── query_result.png
-│       │   ├── severity.png
-│       │   └── top_states.png
-│       ├── emr
-│       │   ├── execution
-│       │   │   ├── emr_city_analysis.png
-│       │   │   ├── emr_df_show.png
-│       │   │   ├── emr_hour_analysis.png
-│       │   │   ├── emr_s3_partition_output.png
-│       │   │   ├── emr_severity_analysis.png
-│       │   │   ├── emr_state_analysis.png
-│       │   │   └── emr_weather_analysis.png
-│       │   └── setup
-│       │       ├── emr_cluster_running.png
-│       │       ├── emr_cluster_starting.png
-│       │       ├── emr_create_cluster.png
-│       │       ├── emr_inbound_rules.png
-│       │       ├── emr_instance_config.png
-│       │       ├── emr_networking.png
-│       │       ├── emr_network_security_iam.png
-│       │       ├── emr_security_iam.png
-│       │       └── emr_ssh_connected.png
-│       ├── glue
-│       │   ├── crawler_running.png
-│       │   ├── crawler_success.png
-│       │   ├── table_created.png
-│       │   └── table_schema.png
-│       └── s3
-│           ├── s3_bucket_overview.png
-│           ├── s3_data_sets_folder.png
-│           ├── s3_output.png
-│           └── s3_raw_data_files.png
-├── output
-│   ├── accidents_clean_parquet
-│   │   ├── part-00000-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│   │   ├── part-00001-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│   │   ├── part-00002-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│   │   ├── part-00003-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│   │   ├── part-00004-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│   │   ├── part-00005-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet 
-│   │   └── _SUCCESS
-│   ├── emr_state_wise_parquet
-│   │   ├── part-00000-b4647951-3cf5-44b8-a556-f5f3ce6c1a1c-c000.snappy.parquet
-│   │   ├── part-00001-b4647951-3cf5-44b8-a556-f5f3ce6c1a1c-c000.snappy.parquet
-│   │   ├── part-00002-b4647951-3cf5-44b8-a556-f5f3ce6c1a1c-c000.snappy.parquet
-│   │   ├── part-00003-b4647951-3cf5-44b8-a556-f5f3ce6c1a1c-c000.snappy.parquet
-│   │   ├── part-00004-b4647951-3cf5-44b8-a556-f5f3ce6c1a1c-c000.snappy.parquet
-│   │   └── _SUCCESS
-│   └── processed_severity_accident_parquet
-│       ├── part-00000-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       ├── part-00001-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       ├── part-00002-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       ├── part-00003-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       ├── part-00004-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       ├── part-00005-1559cc4e-cb09-4667-8b62-609e0dfadabe.c000.snappy.parquet
-│       └── _SUCCESS
-├── queries
-│   └── accident_analysis_queries.sql
-├── README.md
-└── scripts
-    ├── emr_etl_job.py
-    └── glue_etl_job.py
-```
+- Building an AWS-based data pipeline.
+- Using Amazon S3 for raw and processed data.
+- Processing large datasets with PySpark on Amazon EMR.
+- Writing Parquet data and partitioning by state.
+- Using AWS Glue ETL, Crawlers, and the Data Catalog.
+- Running SQL analysis with Amazon Athena.
+
+## 11. My Contribution
+I worked on the project workflow, including uploading the raw dataset to S3, processing it with PySpark on EMR, selecting required columns, removing null records, performing accident analysis, writing Parquet outputs, using AWS Glue for ETL and cataloging, and preparing Athena SQL queries.
 
 ## 12. How to Run
-### Step 1: Upload Raw Data to S3
-Upload:
+This project uses AWS resources, so update the bucket paths and AWS job settings to match your environment before running it.
 
-```text
-data_sets/accidents_data/US_Accidents_March23.csv
-```
-
-to the configured S3 raw-data location.
-
-### Step 2: Run the EMR PySpark Job
-Use:
-```text
-scripts/emr_etl_job.py
-```
-
-The job reads the raw data from S3, cleans and analyzes it, and writes partitioned Parquet data to S3.
-
-### Step 3: Run the Glue ETL Job
-Use:
-```text
-scripts/glue_etl_job.py
-```
-
-The job reads the EMR Parquet output, performs additional transformation and aggregation, and writes the processed result to S3.
-
-### Step 4: Run Athena Queries
-Use:
-```text
-queries/accident_analysis_queries.sql
-```
+1. **Upload the raw CSV** to the S3 location configured for the project.
+2. **Submit `scripts/emr_etl_job.py`** to an appropriately configured EMR Spark environment.
+3. **Run `scripts/glue_etl_job.py`** as an AWS Glue ETL job, ensuring its input and output S3 paths match your setup.
+4. **Run the Glue Crawler** against the intended output location to create or update the Data Catalog table.
+5. **Execute the SQL statements** in `queries/accident_analysis_queries.sql` in Athena after confirming the database, table, and S3 location.
 
 ## 13. Conclusion
-This project demonstrates an end-to-end cloud data pipeline for processing large-scale accident data using AWS and Apache Spark.
-The project provided practical experience in Amazon S3 data storage, EMR-based Spark processing, partitioned Parquet storage, AWS Glue >
-
+This project demonstrates a cloud data pipeline for processing and analyzing the US Accidents dataset with PySpark and AWS services. It covers raw-data storage in S3, distributed processing with EMR, Parquet outputs, Glue-based transformation and cataloging, and SQL analysis in Athena.
