@@ -2,13 +2,13 @@
 
 ## Project Overview
 This project processes a large-scale US road accident dataset using Apache Spark. 
-The goal is to clean, transform, and analyze accident data locally before deploying the pipeline to AWS cloud services.
+The pipeline processes and analyzes accident data using AWS cloud services.
 
 ## Dataset
 Dataset Name: US Accidents (2016–2023)
 
-Size: 2.9 GB  
-Rows: 7.7 million
+Size: ~2.9 GB  
+Rows: ~7.7 million
 
 Important Columns:
 - ID
@@ -21,15 +21,17 @@ Important Columns:
 
 ## Data Pipeline
 
-Raw Data (CSV)
+Amazon S3 (Raw CSV)
 ↓
-Spark Processing
+Amazon EMR (PySpark Processing)
 ↓
-Data Cleaning
+Data Cleaning & Analysis
 ↓
-Analysis
+Amazon S3 (Parquet Output)
 ↓
-Parquet Output
+AWS Glue (Data Catalog)
+↓
+Amazon Athena (SQL Queries)
 
 ## Analysis Performed
 1. Top states with most accidents
@@ -37,7 +39,6 @@ Parquet Output
 3. Accidents by weather condition
 4. Top cities with most accidents
 5. Accidents by hour (time analysis)
-
 
 ## Tools Used
 - AWS S3
@@ -47,7 +48,3 @@ Parquet Output
 - PySpark
 - Python
 - Linux (Ubuntu)
-
-## Future Cloud Integration
-The processed data will be uploaded to AWS services:
-- Amazon Redshift etc
