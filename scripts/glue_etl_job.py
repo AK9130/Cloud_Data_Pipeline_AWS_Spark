@@ -6,7 +6,7 @@ sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 
-df = spark.read.parquet("s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/")
+df = spark.read.parquet("s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet")
 
 # Fix columns
 df = df.withColumnRenamed("Temperature(F)", "Temperature_F")
@@ -16,9 +16,9 @@ df = df.withColumnRenamed("Visibility(mi)", "Visibility_mi")
 df = df.withColumn("Start_Time", to_timestamp(col("Start_Time")))
 
 # Aggregation
-state_df = df.groupBy("State").count()
+severity_df = df.groupBy("Severity").count()
 
 # Save output
-state_df.write \
+severity_df.write \
   .mode("overwrite") \
-  .parquet("s3://aaqib-data-pipeline-bucket/output/processed_state_accidents_parquet/")
+  .parquet("s3://aaqib-data-pipeline-bucket/output/processed_severity_accidents_parquet/")
