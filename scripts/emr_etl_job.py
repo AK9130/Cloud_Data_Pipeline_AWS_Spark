@@ -5,7 +5,7 @@ spark = SparkSession.builder.appName("AccidentDataProcessing").getOrCreate()
 
 # S3 data read
 df = spark.read.csv(
-    "s3://aaqib-data-pipeline-bucket/data_sets/raw_data/US_Accidents_March23.csv",
+    "s3://aaqib-data-pipeline-bucket/data_sets/accidents_data/US_Accidents_March23.csv",
     header=True,
     inferSchema=True
 )
