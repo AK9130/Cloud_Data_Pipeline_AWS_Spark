@@ -122,13 +122,11 @@ scripts/glue_etl_job.py
 
 The job reads processed Parquet data from S3, renames selected columns, converts `Start_Time` to timestamp format, performs severity-wise aggregation, and writes its output to S3.
 
-The README's configured output location is:
+The  output location is:
 
 ```text
 s3://aaqib-data-pipeline-bucket/output/processed_severity_accidents_parquet/
 ```
-
-Make sure this path matches the output path configured in `scripts/glue_etl_job.py`. The repository's local output folder is named `processed_severity_accidents_parquet`, so keep the script, S3 path, and documentation consistent.
 
 ### Step 4: Catalog Data with AWS Glue
 Use an AWS Glue Crawler to crawl the intended processed S3 output location and create or update the table schema in the Glue Data Catalog.
@@ -240,8 +238,6 @@ They include screenshots related to S3, EMR setup and execution, Glue crawler/ca
 I worked on the project workflow, including uploading the raw dataset to S3, processing it with PySpark on EMR, selecting required columns, removing null records, performing accident analysis, writing Parquet outputs, using AWS Glue for ETL and cataloging, and preparing Athena SQL queries.
 
 ## 12. How to Run
-This project uses AWS resources, so update the bucket paths and AWS job settings to match your environment before running it.
-
 1. **Upload the raw CSV** to the S3 location configured for the project.
 2. **Submit `scripts/emr_etl_job.py`** to an appropriately configured EMR Spark environment.
 3. **Run `scripts/glue_etl_job.py`** as an AWS Glue ETL job, ensuring its input and output S3 paths match your setup.
