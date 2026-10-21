@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import hour
+from pyspark.sql import functions as F
+from pyspark import StorageLevel
 
 spark = SparkSession.builder.appName("AccidentDataProcessing").getOrCreate()
 
@@ -16,55 +17,56 @@ df.printSchema()
 # show sample
 df.show(5)
 
-# select useful columns
+# select useful columns + clean
 df_clean = df.select(
-    "ID",
-    "Severity",
-    "Start_Time",
-    "City",
-    "State",
-    "Temperature(F)",
-    "Weather_Condition"
+    "ID", "Severity", "Start_Time", "City", "State",
+    "Temperature(F)", "Weather_Condition"
 )
 
-# remove nulls
-df_clean = df_clean.dropna()
+df_clean = df_clean.withColumn("Start_Time", F.to_timestamp(F.col("Start_Time")))
+
+df_clean = df_clean.dropna(subset=["ID", "Severity", "Start_Time", "State", "City"])
+
+df_clean.persist(StorageLevel.MEMORY_AND_DISK)
 
 # analysis
 
-# 1. State analysis
+# 1. State analysis (top 10)
 df_clean.groupBy("State").count() \
-.orderBy("count", ascending=False).show(10)
+    .orderBy("count", ascending=False).show(10)
 
 # 2. Severity analysis
 df_clean.groupBy("Severity").count() \
-.orderBy("Severity").show()
+    .orderBy("Severity").show()
 
 # 3. Weather analysis
-df_clean.groupBy("Weather_Condition").count() \
-.orderBy("count", ascending=False).show(10)
+df_clean.filter(F.col("Weather_Condition").isNotNull()) \
+    .groupBy("Weather_Condition").count() \
+    .orderBy("count", ascending=False).show(10)
 
 # 4. City analysis
 df_clean.groupBy("City").count() \
-.orderBy("count", ascending=False).show(10)
+    .orderBy("count", ascending=False).show(10)
 
 # 5. Hour analysis
-df_clean.groupBy(hour("Start_Time").alias("Hour")).count() \
-.orderBy("Hour").show(24)
+df_clean.groupBy(F.hour("Start_Time").alias("Hour")).count() \
+    .orderBy("Hour").show(24)
 
-# 6. Save Cleaned Data Partitioned by State
+# 6. Save cleaned data partitioned by State
 df_clean.write.mode("overwrite").partitionBy("State").parquet(
-    "s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/")
+    "s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/"
+)
 
-# 7. Perform State-Wise Accident Count Analysis
+# 7. State-wise accident count analysis (saare states)
 df_state = df_clean.groupBy("State").count() \
-.orderBy("count", ascending=False)
+    .orderBy("count", ascending=False)
 
-df_state.show()
+df_state.show(50, truncate=False)
 
-# 8. Save State-Wise Accident Counts as Partitioned Parquet
-df_state.write.mode("overwrite").partitionBy("State").parquet(
+# 8. Save state-wise counts (chhota data, partition nahi)
+df_state.coalesce(1).write.mode("overwrite").parquet(
     "s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/"
 )
 
+df_clean.unpersist()
 spark.stop()
