@@ -26,26 +26,27 @@ GROUP BY City
 ORDER BY total_accidents DESC
 LIMIT 10;
 
--- Accidents per hour
-SELECT EXTRACT(hour FROM Start_Time) AS hour, COUNT(*) AS total_accidents
+-- Accidents per hour (0 to 23 order)
+SELECT EXTRACT(hour FROM Start_Time) AS accident_hour, COUNT(*) AS total_accidents
 FROM accidents_clean_parquet
-GROUP BY hour
-ORDER BY total_accidents;
+GROUP BY EXTRACT(hour FROM Start_Time)
+ORDER BY accident_hour;
 
--- Accident Count per Minute using Subquery
-SELECT minute, count(*) AS total_accidents
+-- Accident count per minute using subquery
+SELECT minute, COUNT(*) AS total_accidents
 FROM (
-    SELECT extract(minute from start_time) AS minute
+    SELECT EXTRACT(minute FROM Start_Time) AS minute
     FROM accidents_clean_parquet
 ) t
 GROUP BY minute
 ORDER BY total_accidents DESC
 LIMIT 10;
 
--- Top 5 states with highest average severity
-SELECT State, AVG(Severity) AS avg_severity
+-- Top 5 states with highest average severity (small states filtered out)
+SELECT State, ROUND(AVG(Severity), 2) AS avg_severity, COUNT(*) AS total_accidents
 FROM accidents_clean_parquet
 GROUP BY State
+HAVING COUNT(*) > 1000
 ORDER BY avg_severity DESC
 LIMIT 5;
 
@@ -58,7 +59,8 @@ WITH city_counts AS (
 SELECT State, City, total_accidents
 FROM (
     SELECT *,
-           RANK() OVER (PARTITION BY State ORDER BY total_accidents DESC) AS rnk
+           ROW_NUMBER() OVER (PARTITION BY State ORDER BY total_accidents DESC) AS city_rank
     FROM city_counts
 ) t
-WHERE rnk <= 3;
+WHERE city_rank <= 3
+ORDER BY State, city_rank;
