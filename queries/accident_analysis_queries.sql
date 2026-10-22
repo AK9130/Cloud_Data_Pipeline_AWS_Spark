@@ -22,6 +22,7 @@ LIMIT 10;
 -- Accidents by city
 SELECT City, COUNT(*) AS total_accidents
 FROM accidents_clean_parquet
+WHERE State = 'CA'
 GROUP BY City
 ORDER BY total_accidents DESC
 LIMIT 10;
