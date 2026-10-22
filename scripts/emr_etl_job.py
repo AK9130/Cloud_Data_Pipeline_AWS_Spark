@@ -8,7 +8,6 @@ spark = SparkSession.builder.appName("AccidentDataProcessing").getOrCreate()
 df = spark.read.csv(
     "s3://aaqib-data-pipeline-bucket/data_sets/accidents_data/US_Accidents_March23.csv",
     header=True,
-    inferSchema=True
 )
 
 # schema check
@@ -17,17 +16,26 @@ df.printSchema()
 # show sample
 df.show(5)
 
+# before
+print(df.count())
+
+
 # select useful columns + clean
 df_clean = df.select(
-    "ID", "Severity", "Start_Time", "City", "State",
-    "Temperature(F)", "Weather_Condition"
+    "ID",
+    F.col("Severity").cast("int").alias("Severity"),
+    F.to_timestamp("Start_Time").alias("Start_Time"),
+    "City", "State",
+    F.col("Temperature(F)").cast("double").alias("Temperature_F"),
+    "Weather_Condition",
 )
-
-df_clean = df_clean.withColumn("Start_Time", F.to_timestamp(F.col("Start_Time")))
 
 df_clean = df_clean.dropna(subset=["ID", "Severity", "Start_Time", "State", "City"])
 
 df_clean.persist(StorageLevel.MEMORY_AND_DISK)
+
+# after
+print(df_clean.count())
 
 # analysis
 
@@ -40,7 +48,7 @@ df_clean.groupBy("Severity").count() \
     .orderBy("Severity").show()
 
 # 3. Weather analysis
-df_clean.filter(F.col("Weather_Condition").isNotNull()) \
+df_clean.filter(F.col("Weather_Condition").isNotNull()) 
     .groupBy("Weather_Condition").count() \
     .orderBy("count", ascending=False).show(10)
 
@@ -53,7 +61,7 @@ df_clean.groupBy(F.hour("Start_Time").alias("Hour")).count() \
     .orderBy("Hour").show(24)
 
 # 6. Save cleaned data partitioned by State
-df_clean.write.mode("overwrite").partitionBy("State").parquet(
+df_clean.repartition("State").write.mode("overwrite").partitionBy("State").parquet(
     "s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/"
 )
 
