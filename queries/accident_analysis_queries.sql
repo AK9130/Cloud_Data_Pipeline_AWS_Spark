@@ -19,7 +19,7 @@ GROUP BY Weather_Condition
 ORDER BY total_accidents DESC
 LIMIT 10;
 
--- Accidents by city
+-- Top 10 cities in California
 SELECT City, COUNT(*) AS total_accidents
 FROM accidents_clean_parquet
 WHERE State = 'CA'
