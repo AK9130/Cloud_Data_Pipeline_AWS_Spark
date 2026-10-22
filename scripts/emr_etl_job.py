@@ -50,7 +50,7 @@ df_clean.groupBy("Severity").count() \
     .orderBy("Severity").show()
 
 # 3. Weather analysis
-df_clean.filter(F.col("Weather_Condition").isNotNull()) 
+df_clean.filter(F.col("Weather_Condition").isNotNull()) \
     .groupBy("Weather_Condition").count() \
     .orderBy("count", ascending=False).show(10)
 
