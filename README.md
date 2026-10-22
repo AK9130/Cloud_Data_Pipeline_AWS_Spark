@@ -12,7 +12,7 @@ The objective is to build a cloud-based pipeline that can:
 
 - Store raw data in Amazon S3.
 - Process large-scale data using PySpark on Amazon EMR.
-- Select the required columns and remove records with null values in the core columns.
+- Select the required columns, cast them to proper types, and remove records with null values in the core columns.
 - Analyze accident records by state, severity, weather, city, and hour.
 - Store processed data in Parquet format, partitioned by state where applicable.
 - Use AWS Glue to catalog the processed data.
@@ -32,8 +32,10 @@ Columns used in the project:
 - `Start_Time`
 - `City`
 - `State`
-- `Temperature(F)`
+- `Temperature(F)` (renamed to `Temperature_F` in the processed data)
 - `Weather_Condition`
+
+> **Note:** The CSV file is not included in this repository due to its size (~2.9 GB).
 
 ## 4. Technologies Used
 
@@ -89,7 +91,15 @@ Run the PySpark job:
 scripts/emr_etl_job.py
 ```
 
-The job reads the CSV file from S3, selects the required columns, converts `Start_Time` to a timestamp, removes records with null values in the core columns (`ID`, `Severity`, `Start_Time`, `State`, `City`), and performs the following analyses:
+The job reads the CSV file from S3 (without `inferSchema`, so the file is scanned only once) and selects the required columns. It then casts them to proper types:
+
+- `Severity` → integer
+- `Start_Time` → timestamp
+- `Temperature(F)` → double, renamed to `Temperature_F` to avoid special characters in column names
+
+Records with null values in the core columns (`ID`, `Severity`, `Start_Time`, `State`, `City`) are removed. The row count is printed before and after cleaning to verify how many records were dropped.
+
+The job then performs the following analyses:
 
 - State-wise accident count
 - Severity-wise accident count
@@ -101,7 +111,7 @@ The cleaned DataFrame is persisted (`MEMORY_AND_DISK`) so it is not recomputed f
 
 Outputs written to S3:
 
-- Cleaned data in Parquet format, partitioned by `State`:
+- Cleaned data in Parquet format, partitioned by `State` (with `repartition("State")` applied before writing):
 
   ```text
   s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/
@@ -154,9 +164,10 @@ The SQL query file includes:
 - Top 10 states with the most accidents
 - Accidents by severity
 - Top 10 weather conditions with the most accidents
-- Top 10 cities with the most accidents
+- Top 10 cities with the most accidents in California (`State = 'CA'`, which also reads only the `State=CA` partition to reduce data scanned)
 - Accidents per hour (0 to 23)
 - Top 10 accident counts per minute (using a subquery)
+- Month-wise accident counts
 - Top 5 states with the highest average severity (states with fewer than 1,000 records excluded)
 - Top 3 cities per state (using CTE and window function)
 
@@ -166,7 +177,7 @@ The SQL query file includes:
 .
 ├── data_sets/
 │   └── accidents_data/
-│       └── US_Accidents_March23.csv
+│       └── US_Accidents_March23.csv   (not included in repo due to size)
 ├── docs/
 │   ├── project_documentation.md
 │   └── screenshots/
@@ -188,6 +199,8 @@ The SQL query file includes:
 ```
 
 The `output/` folders contain local copies of the outputs. `accidents_clean_parquet/` and `emr_state_wise_parquet/` are Spark outputs, while `athena_results/` holds Athena query results. Generated part-file names can vary between runs, so they are not listed individually.
+
+The raw CSV (`data_sets/`) is excluded from the repository via `.gitignore` because of its size.
 
 ## 9. Outputs and Screenshots
 Local output folders documented in this repository:
@@ -212,8 +225,10 @@ They cover S3, EMR setup and execution, Glue crawler/cataloging, and Athena quer
 
 - Processing a large CSV dataset (about 2.9 GB) with Spark.
 - Reading raw data directly from Amazon S3.
-- Cleaning records without losing too much data: using `dropna` on all columns removed many valid records, so it was limited to the core columns with `subset`.
+- Avoiding a slow extra pass over the file: `inferSchema` was removed and only the required columns were cast to proper types.
+- Cleaning records without losing too much data: using `dropna` on all columns removed many valid records, so it was limited to the core columns with `subset`. Row counts before and after cleaning are printed to verify the data loss.
 - Avoiding repeated recomputation, since the same DataFrame is used for many analyses (solved with `persist`).
+- Avoiding many small files when writing partitioned data: `repartition("State")` is used before `partitionBy("State")`, so each state's data is grouped together and the output has far fewer files.
 - Writing the small state-wise summary without creating many tiny files (solved by removing `partitionBy` and using `coalesce(1)`).
 - Cataloging partitioned S3 data using AWS Glue.
 - Querying the cataloged data using Amazon Athena.
@@ -223,14 +238,16 @@ They cover S3, EMR setup and execution, Glue crawler/cataloging, and Athena quer
 - Building an AWS-based data pipeline.
 - Using Amazon S3 for raw and processed data.
 - Processing large datasets with PySpark on Amazon EMR.
+- Why `inferSchema` is slow on large files and how to cast columns explicitly.
 - Handling nulls with `dropna(subset=[...])`.
-- Using `persist` / `cache` and `coalesce` for better performance.
-- Writing Parquet data and partitioning by state.
+- Using `persist` / `cache` for better performance.
+- Difference between `repartition` and `coalesce`, and when to use each.
+- Writing Parquet data and partitioning by state, and how partition filters reduce Athena scan cost.
 - Using AWS Glue Crawlers and the Data Catalog.
-- Running SQL analysis in Athena, including CTEs and window functions (`ROW_NUMBER`, `RANK`).
+- Running SQL analysis in Athena, including CTEs and window functions (`ROW_NUMBER`).
 
 ## 11. My Contribution
-I worked on the complete project workflow: uploading the raw dataset to S3, processing it with PySpark on EMR, selecting the required columns, removing records with nulls in the core columns, performing the accident analysis, writing Parquet outputs, using AWS Glue Crawler and Data Catalog for cataloging, and preparing the Athena SQL queries.
+I worked on the complete project workflow: uploading the raw dataset to S3, processing it with PySpark on EMR, selecting and casting the required columns, removing records with nulls in the core columns, performing the accident analysis, writing partitioned Parquet outputs, using AWS Glue Crawler and Data Catalog for cataloging, and preparing the Athena SQL queries.
 
 ## 12. How to Run
 1. **Upload the raw CSV** to the S3 location configured for the project.
