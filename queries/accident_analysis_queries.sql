@@ -42,6 +42,12 @@ GROUP BY minute
 ORDER BY total_accidents DESC
 LIMIT 10;
 
+-- Month-wise accidents
+SELECT MONTH(Start_Time) AS month, COUNT(*) AS total_accidents
+FROM accidents_clean_parquet
+GROUP BY MONTH(Start_Time)
+ORDER BY month;
+
 -- Top 5 states with highest average severity (small states filtered out)
 SELECT State, ROUND(AVG(Severity), 2) AS avg_severity, COUNT(*) AS total_accidents
 FROM accidents_clean_parquet
