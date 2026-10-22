@@ -7,8 +7,8 @@ The pipeline processes and analyzes accident data using AWS cloud services.
 ## Dataset
 Dataset Name: US Accidents (2016–2023)
 
-Size: ~2.9 GB  
-Rows: ~7.7 million
+Size: 2.9 GB  
+Rows: 7.7 million
 
 Important Columns:
 - ID
