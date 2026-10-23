@@ -37,8 +37,6 @@ df_clean.persist(StorageLevel.MEMORY_AND_DISK)
 # after
 print(df_clean.count())
 
-df.show(5)
-
 # analysis
 
 # 1. State analysis (top 10)
