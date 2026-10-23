@@ -37,7 +37,7 @@ df_clean.persist(StorageLevel.MEMORY_AND_DISK)
 # after
 print(df_clean.count())
 
-df.show()
+df.show(5)
 
 # analysis
 
