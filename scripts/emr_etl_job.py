@@ -6,7 +6,7 @@ spark = SparkSession.builder.appName("AccidentDataProcessing").getOrCreate()
 
 # S3 data read
 df = spark.read.csv(
-    "s3://aaqib-data-pipeline-bucket/data_sets/accidents_data/US_Accidents_March23.csv",
+    "s3://aaqib-data-pipeline-bucke/data_sets/accidents_data/US_Accidents_March23.csv",
     header=True,
 )
 
@@ -62,7 +62,7 @@ df_clean.groupBy(F.hour("Start_Time").alias("Hour")).count() \
 
 # 6. Save cleaned data partitioned by State
 df_clean.repartition("State").write.mode("overwrite").partitionBy("State").parquet(
-    "s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/"
+    "s3://aaqib-data-pipeline-bucke/output/accidents_clean_parquet/"
 )
 
 # 7. State-wise accident count analysis (saare states)
@@ -73,7 +73,7 @@ df_state.show(50, truncate=False)
 
 # 8. Save state-wise counts (chhota data, partition nahi)
 df_state.coalesce(1).write.mode("overwrite").parquet(
-    "s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/"
+    "s3://aaqib-data-pipeline-bucke/output/emr_state_wise_parquet/"
 )
 
 df_clean.unpersist()
