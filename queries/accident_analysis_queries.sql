@@ -69,5 +69,4 @@ FROM (
            ROW_NUMBER() OVER (PARTITION BY State ORDER BY total_accidents DESC) AS city_rank
     FROM city_counts
 ) t
-WHERE city_rank <= 3
-ORDER BY State, city_rank;
+WHERE city_rank <= 3;
