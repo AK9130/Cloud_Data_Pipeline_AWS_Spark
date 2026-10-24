@@ -16,10 +16,6 @@ df.printSchema()
 # show sample
 df.show(5)
 
-# before
-print(df.count())
-
-
 # select useful columns + clean
 df_clean = df.select(
     "ID",
@@ -29,6 +25,9 @@ df_clean = df.select(
     F.col("Temperature(F)").cast("double").alias("Temperature_F"),
     "Weather_Condition",
 )
+
+# before
+print(df.count())
 
 df_clean = df_clean.dropna(subset=["ID", "Severity", "Start_Time", "State", "City"])
 
