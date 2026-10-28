@@ -21,16 +21,11 @@ Important Columns:
 
 ## Data Pipeline
 
-Amazon S3 (Raw CSV)
-↓
-Amazon EMR (PySpark Processing)
-↓
-Data Cleaning & Analysis
-↓
-Amazon S3 (Parquet Output, partitioned by State)
-↓
-AWS Glue (Data Catalog)
-↓
+Amazon S3 (Raw CSV) -->
+Amazon EMR (PySpark Processing) -->
+Data Cleaning & Analysis -->
+Amazon S3 (Parquet Output, partitioned by State) -->
+AWS Glue (Data Catalog) -->
 Amazon Athena (SQL Queries)
 
 ## Data Processing (PySpark)
