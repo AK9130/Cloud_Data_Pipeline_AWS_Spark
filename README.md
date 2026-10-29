@@ -146,17 +146,31 @@ Run the queries one at a time in the Athena query editor.
 ### State-wise Accident Analysis
 Counts accident records by state and identifies the states with the highest number of records.
 
+![State-wise Accident Analysis](docs/screenshots/emr/execution/01_emr_state_analysis.png)
+
 ### Severity Analysis
 Counts accident records for each severity level.
+
+![Severity Analysis](docs/screenshots/emr/execution/02_emr_severity_analysis.png)
 
 ### Weather-condition Analysis
 Analyzes accident records by weather condition (records with null weather are excluded from this analysis).
 
+![Weather-condition Analysis](docs/screenshots/emr/execution/03_emr_weather_analysis.png)
+
 ### City-wise Analysis
 Identifies the cities with the highest number of accident records.
 
+![City-wise Accident Analysis](docs/screenshots/emr/execution/04_emr_city_analysis.png)
+
 ### Hourly Analysis
 Analyzes accident activity using the hour extracted from `Start_Time`.
+
+![Hourly Accident Analysis](docs/screenshots/emr/execution/05_emr_hour_analysis.png)
+
+### DataFrame Preview
+
+![DataFrame Preview](docs/screenshots/emr/execution/06_emr_df_show%28%29.png)
 
 ### Athena Queries
 The SQL query file includes:
