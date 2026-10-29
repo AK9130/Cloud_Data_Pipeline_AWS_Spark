@@ -170,26 +170,30 @@ Analyzes accident activity using the hour extracted from `Start_Time`.
 
 ### DataFrame Preview
 
-![DataFrame Preview](docs/screenshots/emr/execution/06_emr_df_show%28%29.png)
+ ![DataFrame Preview](docs/screenshots/emr/execution/06_emr_df_show%28%29.png)
 
 ### Athena Queries
 The SQL query file includes:
 
 - Top 10 states with the most accidents
-- 
-![Top 10 States](docs/screenshots/athena/01_top10_states.png)
+ ![Top 10 States](docs/screenshots/athena/01_top10_states.png)
 
 - Accidents by severity
-
-![Accidents by Severity](docs/screenshots/athena/02_accidents_by_severity.png)
+ ![Accidents by Severity](docs/screenshots/athena/02_accidents_by_severity.png)
   
-- Top 10 weather conditions with the most accidents  ([View](docs/screenshots/athena/04_top10_cities_california.png))
-- Top 10 cities with the most accidents in California (`State = 'CA'`, which also reads only the `State=CA` partition to reduce data scanned)
-- Accidents per hour (0 to 23)
-- Top 10 accident counts per minute (using a subquery)
-- Month-wise accident counts
-- Top 5 states with the highest average severity (states with fewer than 1,000 records excluded)
-- Top 3 cities per state (using CTE and window function)
+- Top 10 weather conditions with the most accidents  ([View](docs/screenshots/athena/03_accidents_by_weather.png))
+
+- Top 10 cities with the most accidents in California (`State = 'CA'`, which also reads only the `State=CA` partition to reduce data scanned)  ([View](docs/screenshots/athena/04_top10_cities_california.png))
+  
+- Accidents per hour (0 to 23)  ([View](docs/screenshots/athena/05_accidents_per_hour.png))
+
+- Top 10 accident counts per minute (using a subquery)  ([View](docs/screenshots/athena/06_accidents_per_minute.png))
+
+- Month-wise accident counts  ([View](docs/screenshots/athena/07_month_wise_accidents.png))
+
+- Top 5 states with the highest average severity (states with fewer than 1,000 records excluded)  ([View](docs/screenshots/athena/08_top5_states_avg_severity.png))
+  
+- Top 3 cities per state (using CTE and window function) 
 
 ![Top 3 Cities per State](docs/screenshots/athena/09_top3_cities_per_state.png)
 
