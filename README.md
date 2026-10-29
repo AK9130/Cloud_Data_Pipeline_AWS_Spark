@@ -183,7 +183,7 @@ The SQL query file includes:
 
 ![Accidents by Severity](docs/screenshots/athena/02_accidents_by_severity.png)
   
-- Top 10 weather conditions with the most accidents
+- Top 10 weather conditions with the most accidents  (url)
 - Top 10 cities with the most accidents in California (`State = 'CA'`, which also reads only the `State=CA` partition to reduce data scanned)
 - Accidents per hour (0 to 23)
 - Top 10 accident counts per minute (using a subquery)
