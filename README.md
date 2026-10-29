@@ -22,7 +22,7 @@ The objective is to build a cloud-based pipeline that can:
 
 **Dataset:** US Accidents (March 2023 version)
 **Local path:** `data_sets/accidents_data/US_Accidents_March23.csv`
-**Approximate size:** 2.9 GB
+**Approximate size:** 2.8 GB
 **Approximate records:** 7.7 million
 
 Columns used in the project:
