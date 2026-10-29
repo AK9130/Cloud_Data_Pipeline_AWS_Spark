@@ -35,7 +35,7 @@ Columns used in the project:
 - `Temperature(F)` (renamed to `Temperature_F` in the processed data)
 - `Weather_Condition`
 
-> **Note:** The CSV file is not included in this repository due to its size (~2.9 GB).
+> **Note:** The CSV file is not included in this repository due to its size (2.8 GB).
 
 ## 4. Technologies Used
 
