@@ -181,7 +181,7 @@ The SQL query file includes:
 - Top 10 cities in California ([View](docs/screenshots/athena/04_top10_cities_california.png))
 - Accidents per hour ([View](docs/screenshots/athena/05_accidents_per_hour.png))
 - Accidents per minute ([View](docs/screenshots/athena/06_accidents_per_minute.png))
-- Month-wise accidents ([View](docs/screenshots/athena/07_month_wise_accidents.png.png))
+- Month-wise accidents ([View](docs/screenshots/athena/07_month_wise_accidents.png))
 - Top 5 states by average severity ([View](docs/screenshots/athena/08_top5_states_avg_severity.png))
 - Top 3 cities per state ([View](docs/screenshots/athena/09_top3_cities_per_state.png))
 
