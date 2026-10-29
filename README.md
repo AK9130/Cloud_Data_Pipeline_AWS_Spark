@@ -176,7 +176,13 @@ Analyzes accident activity using the hour extracted from `Start_Time`.
 The SQL query file includes:
 
 - Top 10 states with the most accidents
+- 
+![Top 10 States](docs/screenshots/athena/01_top10_states.png)
+
 - Accidents by severity
+
+![Accidents by Severity](docs/screenshots/athena/02_accidents_by_severity.png)
+  
 - Top 10 weather conditions with the most accidents
 - Top 10 cities with the most accidents in California (`State = 'CA'`, which also reads only the `State=CA` partition to reduce data scanned)
 - Accidents per hour (0 to 23)
@@ -184,6 +190,8 @@ The SQL query file includes:
 - Month-wise accident counts
 - Top 5 states with the highest average severity (states with fewer than 1,000 records excluded)
 - Top 3 cities per state (using CTE and window function)
+
+![Top 3 Cities per State](docs/screenshots/athena/09_top3_cities_per_state.png)
 
 ## 8. Project Structure
 
