@@ -81,7 +81,7 @@ Amazon Athena (SQL Analysis)
 Upload the dataset to the configured S3 bucket:
 
 ```text
-s3://aaqib-data-pipeline-bucket/data_sets/accidents_data/US_Accidents_March23.csv
+s3://aaqib-data-pipeline-buckett/data_sets/accidents_data/US_Accidents_March23.csv
 ```
 
 ### Step 2: Process Data Using Amazon EMR
@@ -114,20 +114,20 @@ Outputs written to S3:
 - Cleaned data in Parquet format, partitioned by `State` (with `repartition("State")` applied before writing):
 
   ```text
-  s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/
+  s3://aaqib-data-pipeline-buckett/output/accidents_clean_parquet/
   ```
 
 - State-wise accident counts as a single Parquet file (not partitioned, since the data is small):
 
   ```text
-  s3://aaqib-data-pipeline-bucket/output/emr_state_wise_parquet/
+  s3://aaqib-data-pipeline-buckett/output/emr_state_wise_parquet/
   ```
 
 ### Step 3: Catalog Data with AWS Glue
 Run an AWS Glue Crawler on the cleaned data output location to create or update the table in the Glue Data Catalog:
 
 ```text
-s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/
+s3://aaqib-data-pipeline-buckett/output/accidents_clean_parquet/
 ```
 
 The crawler registers the `State=...` partition folders automatically.
@@ -271,7 +271,7 @@ I worked on the complete project workflow: uploading the raw dataset to S3, proc
    spark-submit scripts/emr_etl_job.py
    ```
 
-3. **Run the Glue Crawler** on `s3://aaqib-data-pipeline-bucket/output/accidents_clean_parquet/` to create or update the Data Catalog table.
+3. **Run the Glue Crawler** on `s3://aaqib-data-pipeline-buckett/output/accidents_clean_parquet/` to create or update the Data Catalog table.
 4. **Execute the SQL statements** in `queries/accident_analysis_queries.sql` in Athena, one query at a time, after confirming the database and table name.
 5. **Terminate the EMR cluster** when the job is done to avoid extra charges.
 
