@@ -23,7 +23,7 @@ df_clean = df.select(
     F.to_timestamp("Start_Time").alias("Start_Time"),
     "City", "State",
     F.col("Temperature(F)").cast("double").alias("Temperature_F"),
-    "Weather_Condition",
+    "Weather_Condition"
 )
 
 # before
